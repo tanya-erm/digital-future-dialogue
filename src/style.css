@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Suisse Intl';
+  src: url('./SuisseIntl-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .landing-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto auto auto 1fr auto !important;
+    font-size: 110%;
+  }
+  .landing-grid .event-info {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    margin-top: 20px !important;
+    font-size: clamp(16px, 4vw, 22px) !important;
+  }
+  .landing-grid .event-info p {
+    font-size: inherit !important;
+  }
+  .landing-grid .title-main {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    margin-top: 24px;
+    font-size: clamp(36px, 8vw, 56px) !important;
+  }
+  .landing-grid .title-year {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+    margin-top: 8px;
+    align-self: start !important;
+    font-size: clamp(36px, 8vw, 56px) !important;
+  }
+  .landing-grid .grid-spacer {
+    grid-column: 1 !important;
+    grid-row: 5 !important;
+  }
+  .landing-grid .logo-wrap {
+    grid-column: 1 !important;
+    grid-row: 6 !important;
+  }
+}
