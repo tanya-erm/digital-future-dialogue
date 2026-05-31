@@ -2,12 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { GLYPHS, GLYPH_COLS } from './glyphs';
 import dfdLogo from './dfd-logo.svg';
 
-// ---------- Config (baked from "Orchid Gold" preset) ----------
+// ---------- Config ----------
 
 const COLS = 22;
 const ROWS = 15;
 const SPACING = 62;
-const BG_COLOR = '#ffffff';
 const TEXT = 'dfd';
 const LETTER_GAP = 1;
 const TEXT_COL = 5;
@@ -25,14 +24,37 @@ interface Layer {
   blackDiameter: number;
 }
 
-const LAYERS: Layer[] = [
-  { delay: 0,    thinDiameter: 87, blackDiameter: 124, dotColor: '#ebb4f8', gridDotColor: '#bba84c', gridDotOpacity: 0 },
-  { delay: 0.16, thinDiameter: 12, blackDiameter: 162, dotColor: '#bba84c', gridDotColor: '#bba84c', gridDotOpacity: 0 },
-  { delay: 0.14, thinDiameter: 23, blackDiameter: 71,  dotColor: '#f990eb', gridDotColor: '#dda4ec', gridDotOpacity: 0 },
-];
+interface ColorTheme {
+  id: string;
+  swatch: string;
+  bg: string;
+  layers: { dotColor: string; gridDotColor: string }[];
+}
 
-const DAY_THEMES: Record<number, { bg: string; layers: { dotColor: string; gridDotColor: string }[] }> = {
-  1: {
+const COLOR_THEMES: ColorTheme[] = [
+  {
+    id: 'orchid',
+    swatch: '#ecb4f8',
+    bg: '#ffffff',
+    layers: [
+      { dotColor: '#ebb4f8', gridDotColor: '#bba84c' },
+      { dotColor: '#bba84c', gridDotColor: '#bba84c' },
+      { dotColor: '#f990eb', gridDotColor: '#dda4ec' },
+    ],
+  },
+  {
+    id: 'gold',
+    swatch: '#bba84c',
+    bg: '#ffffff',
+    layers: [
+      { dotColor: '#bba84c', gridDotColor: '#ebb4f8' },
+      { dotColor: '#d4c06a', gridDotColor: '#d4c06a' },
+      { dotColor: '#bba84c', gridDotColor: '#bba84c' },
+    ],
+  },
+  {
+    id: 'cyan',
+    swatch: '#acf7fc',
     bg: '#ACF7FC',
     layers: [
       { dotColor: '#77DFE7', gridDotColor: '#77DFE7' },
@@ -40,7 +62,43 @@ const DAY_THEMES: Record<number, { bg: string; layers: { dotColor: string; gridD
       { dotColor: '#F1F8F3', gridDotColor: '#F1F8F3' },
     ],
   },
-};
+  {
+    id: 'green',
+    swatch: '#6edb9f',
+    bg: '#e8fbf0',
+    layers: [
+      { dotColor: '#6edb9f', gridDotColor: '#3dbd76' },
+      { dotColor: '#3dbd76', gridDotColor: '#3dbd76' },
+      { dotColor: '#a8ecc4', gridDotColor: '#a8ecc4' },
+    ],
+  },
+  {
+    id: 'orange',
+    swatch: '#ff9527',
+    bg: '#fff5e8',
+    layers: [
+      { dotColor: '#ff9527', gridDotColor: '#e07a10' },
+      { dotColor: '#e07a10', gridDotColor: '#e07a10' },
+      { dotColor: '#ffc07a', gridDotColor: '#ffc07a' },
+    ],
+  },
+  {
+    id: 'blue',
+    swatch: '#7690ff',
+    bg: '#eef1ff',
+    layers: [
+      { dotColor: '#7690ff', gridDotColor: '#5a73e0' },
+      { dotColor: '#5a73e0', gridDotColor: '#5a73e0' },
+      { dotColor: '#a8b8ff', gridDotColor: '#a8b8ff' },
+    ],
+  },
+];
+
+const BASE_LAYERS: Layer[] = [
+  { delay: 0,    thinDiameter: 87, blackDiameter: 124, dotColor: '#ebb4f8', gridDotColor: '#bba84c', gridDotOpacity: 0 },
+  { delay: 0.16, thinDiameter: 12, blackDiameter: 162, dotColor: '#bba84c', gridDotColor: '#bba84c', gridDotOpacity: 0 },
+  { delay: 0.14, thinDiameter: 23, blackDiameter: 71,  dotColor: '#f990eb', gridDotColor: '#dda4ec', gridDotOpacity: 0 },
+];
 
 // ---------- Field math ----------
 
@@ -73,7 +131,6 @@ export default function App() {
   const vbW = (COLS - 1) * SPACING + 2 * padding;
   const vbH = (ROWS - 1) * SPACING + 2 * padding;
 
-  // Pre-compute letter cell positions.
   const letterCells = new Set<string>();
   let cursor = TEXT_COL;
   for (const ch of TEXT) {
@@ -91,7 +148,9 @@ export default function App() {
     cursor += gCols + LETTER_GAP;
   }
 
-  const [hoveredDay, setHoveredDay] = useState<null | 1 | 2>(null);
+  const [activeTheme, setActiveTheme] = useState(0);
+  const theme = COLOR_THEMES[activeTheme];
+
   const [time, setTime] = useState(0);
   const startTimeRef = useRef(performance.now());
 
@@ -99,9 +158,9 @@ export default function App() {
   const mouseRef = useRef<{ x: number; y: number } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const trailRefs = useRef<(({ x: number; y: number }) | null)[]>(LAYERS.map(() => null));
+  const trailRefs = useRef<(({ x: number; y: number }) | null)[]>(BASE_LAYERS.map(() => null));
   const [trailPositions, setTrailPositions] = useState<(({ x: number; y: number }) | null)[]>(
-    LAYERS.map(() => null),
+    BASE_LAYERS.map(() => null),
   );
 
   const screenToSvg = useCallback((clientX: number, clientY: number) => {
@@ -144,8 +203,8 @@ export default function App() {
       let changed = false;
       const next: (({ x: number; y: number }) | null)[] = [];
 
-      for (let i = 0; i < LAYERS.length; i++) {
-        const delay = LAYERS[i].delay;
+      for (let i = 0; i < BASE_LAYERS.length; i++) {
+        const delay = BASE_LAYERS[i].delay;
         if (delay === 0 || !target) {
           trails[i] = target;
           next.push(target);
@@ -195,11 +254,11 @@ export default function App() {
   // Build dot arrays per layer.
   const allLayerDots: React.ReactElement[][] = [];
 
-  for (let li = 0; li < LAYERS.length; li++) {
-    const layer = LAYERS[li];
-    const theme = hoveredDay ? DAY_THEMES[hoveredDay]?.layers[li] : null;
-    const dotColor = theme?.dotColor ?? layer.dotColor;
-    const gridDotColor = theme?.gridDotColor ?? layer.gridDotColor;
+  for (let li = 0; li < BASE_LAYERS.length; li++) {
+    const layer = BASE_LAYERS[li];
+    const themeLayer = theme.layers[li];
+    const dotColor = themeLayer?.dotColor ?? layer.dotColor;
+    const gridDotColor = themeLayer?.gridDotColor ?? layer.gridDotColor;
 
     const cursorPos = layer.delay === 0 ? mouse : (trailPositions[li] ?? null);
     const thinR = layer.thinDiameter / 2;
@@ -248,8 +307,6 @@ export default function App() {
     allLayerDots.push(dots);
   }
 
-  const effectiveBg = hoveredDay && DAY_THEMES[hoveredDay] ? DAY_THEMES[hoveredDay].bg : BG_COLOR;
-
   const font = "'Suisse Intl', sans-serif";
   const pad = 'clamp(20px, 2.5vw, 40px)';
 
@@ -271,7 +328,7 @@ export default function App() {
   return (
     <div style={{
       height: '100vh', overflow: 'hidden',
-      background: effectiveBg,
+      background: theme.bg,
       transition: 'background 1.2s ease',
       position: 'relative',
     }}>
@@ -294,87 +351,101 @@ export default function App() {
         position: 'absolute', inset: 0,
         display: 'grid',
         gridTemplateColumns: '1fr auto',
-        gridTemplateRows: '1fr auto 1fr auto',
+        gridTemplateRows: 'auto 1fr auto',
         padding: `clamp(8px, 1vw, 16px) ${pad} ${pad} ${pad}`,
         pointerEvents: 'none',
       }}>
-        <div style={{ gridColumn: '1', gridRow: '1', alignSelf: 'start' }}>
-          <a href="#day1"
-            onMouseEnter={() => setHoveredDay(1)}
-            onMouseLeave={() => setHoveredDay(null)}
-            style={{
-              fontFamily: font, fontWeight: 500,
-              fontSize: 'clamp(32px, 4vw, 64px)',
-              lineHeight: 1.1, letterSpacing: '-0.02em',
-              color: '#000', textDecoration: 'none',
-              display: 'block', pointerEvents: 'auto',
-              ...stagger(0),
-            }}>Day 1<span style={{
-              marginLeft: '0.3em', opacity: loaded ? 0.5 : 0,
-              transition: 'opacity 0.6s ease',
-            }}> Programme {hoveredDay === 1 && '→'}</span></a>
-          <a href="#day2" style={{
-            fontFamily: font, fontWeight: 500,
-            fontSize: 'clamp(32px, 4vw, 64px)',
-            lineHeight: 1.1, letterSpacing: '-0.02em',
-            color: '#000', textDecoration: 'none',
-            display: 'block', pointerEvents: 'auto',
-            marginTop: 'clamp(8px, 1vw, 20px)',
-            ...stagger(1),
-          }}>Day 2</a>
-        </div>
-
-        <div className="event-info" style={{
-          gridColumn: '2', gridRow: '1',
+        {/* Row 1: Title top-left */}
+        <span className="title-main" style={{
+          gridColumn: '1', gridRow: '1',
           fontFamily: font, fontWeight: 500,
+          fontSize: 'clamp(40px, 5vw, 86px)',
+          lineHeight: 1.1, letterSpacing: '-0.02em',
           color: '#000', alignSelf: 'start',
-          marginTop: 20,
+          ...stagger(0),
+        }}>Digital Future Dialogue</span>
+
+        {/* Row 1 right: Event info + theme switcher */}
+        <div style={{
+          gridColumn: '2', gridRow: '1',
+          display: 'flex', alignItems: 'flex-start', gap: 'clamp(16px, 2vw, 32px)',
+          alignSelf: 'start',
         }}>
-          <p style={{
-            fontSize: 'clamp(14px, 1.5vw, 26px)',
+          <p className="event-info" style={{
+            fontFamily: font, fontWeight: 500,
+            fontSize: 'clamp(14px, 1.8vw, 35px)',
             lineHeight: 1.01, letterSpacing: '-0.03em',
-            margin: 0,
-            ...stagger(2),
+            color: '#000', margin: 0,
+            marginTop: 'clamp(4px, 0.5vw, 12px)',
+            ...stagger(1),
           }}>
             An event for the global<br />
             digital rights community
           </p>
-          <p style={{
-            fontSize: 'clamp(14px, 1.5vw, 26px)',
-            lineHeight: 0.98, letterSpacing: '-0.04em',
-            margin: 0,
-            marginTop: 'clamp(20px, 2.5vw, 45px)',
-            ...stagger(3),
+
+          {/* Theme switcher */}
+          <div className="theme-switcher" style={{
+            display: 'flex', flexDirection: 'column', gap: 8,
+            padding: 8, pointerEvents: 'auto',
+            ...stagger(2),
           }}>
-            8–11 June, 2026<br />
-            Brussels
-          </p>
+            {COLOR_THEMES.map((t, i) => (
+              <button
+                key={t.id}
+                onClick={() => setActiveTheme(i)}
+                aria-label={`${t.id} theme`}
+                style={{
+                  width: 'clamp(20px, 2vw, 32px)',
+                  height: 'clamp(20px, 2vw, 32px)',
+                  borderRadius: '50%',
+                  background: t.swatch,
+                  border: activeTheme === i ? '2px solid #000' : '2px solid transparent',
+                  cursor: 'pointer',
+                  padding: 0,
+                  transition: 'border-color 0.3s ease, transform 0.2s ease',
+                  transform: activeTheme === i ? 'scale(1.15)' : 'scale(1)',
+                }}
+              />
+            ))}
+          </div>
         </div>
 
-        <span className="title-main" style={{
-          gridColumn: '1', gridRow: '2',
+        {/* Row 2: spacer */}
+        <div style={{ gridColumn: '1 / -1', gridRow: '2' }} />
+
+        {/* Row 3 left: Date + Logo */}
+        <div style={{
+          gridColumn: '1', gridRow: '3',
+          alignSelf: 'end',
+          display: 'flex', flexDirection: 'column',
+          gap: 'clamp(16px, 2vw, 40px)',
+        }}>
+          <span className="title-date" style={{
+            fontFamily: font, fontWeight: 500,
+            fontSize: 'clamp(40px, 5vw, 86px)',
+            lineHeight: 1.1, letterSpacing: '-0.02em',
+            color: '#000',
+            ...stagger(3),
+          }}>1–3 June</span>
+
+          <div className="logo-wrap" style={{ ...stagger(5) }}>
+            <img src={dfdLogo} alt="Digital Future Dialogue" style={{
+              width: 'clamp(120px, 16vw, 280px)', height: 'auto',
+            }} />
+          </div>
+        </div>
+
+        {/* Row 3 right: Brussels 2026 */}
+        <div className="title-location" style={{
+          gridColumn: '2', gridRow: '3',
           fontFamily: font, fontWeight: 500,
-          fontSize: 'clamp(32px, 4vw, 64px)',
+          fontSize: 'clamp(40px, 5vw, 86px)',
           lineHeight: 1.1, letterSpacing: '-0.02em',
-          color: '#000', alignSelf: 'center',
+          color: '#000', alignSelf: 'end',
           ...stagger(4),
-        }}>Digital Future Dialogue</span>
-
-        <span className="title-year" style={{
-          gridColumn: '2', gridRow: '2',
-          fontFamily: font, fontWeight: 500,
-          fontSize: 'clamp(32px, 4vw, 64px)',
-          lineHeight: 1.1, letterSpacing: '-0.02em',
-          color: '#000', alignSelf: 'center',
-          ...stagger(5),
-        }}>2026</span>
-
-        <div className="grid-spacer" style={{ gridColumn: '1 / -1', gridRow: '3' }} />
-
-        <div className="logo-wrap" style={{ gridColumn: '1', gridRow: '4', alignSelf: 'end', ...stagger(6) }}>
-          <img src={dfdLogo} alt="Digital Future Dialogue" style={{
-            width: 'clamp(120px, 16vw, 280px)', height: 'auto',
-          }} />
+        }}>
+          Brussels<br />
+          2026
         </div>
       </div>
     </div>
