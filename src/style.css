@@ -16,35 +16,58 @@ html, body {
 
 @media (max-width: 768px) {
   .landing-grid {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto auto auto 1fr auto !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-rows: auto auto auto auto 1fr !important;
+    padding: 24px 8px 40px 24px !important;
   }
-  .landing-grid .title-main {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-  }
-  .landing-grid .info-row {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-  }
-  .landing-grid .event-info {
-    font-size: clamp(16px, 4vw, 22px) !important;
-    margin-top: 0 !important;
-  }
-  .landing-grid .title-date {
-    grid-column: 1 !important;
-    grid-row: 3 !important;
-    margin-top: 24px;
-  }
-  .landing-grid .title-location {
-    grid-column: 1 !important;
-    grid-row: 4 !important;
-  }
+
+  /* Row 1: Logo left, swatches right */
   .landing-grid .logo-wrap {
     grid-column: 1 !important;
-    grid-row: 6 !important;
+    grid-row: 1 !important;
+    align-self: start !important;
   }
-  .landing-grid .theme-switcher {
-    flex-direction: row !important;
+  .landing-grid .logo-wrap img {
+    width: clamp(100px, 40vw, 200px) !important;
+  }
+
+  /* Row 2: Date + location */
+  .landing-grid .title-date {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    font-size: clamp(28px, 7vw, 42px) !important;
+    margin-top: 40px;
+  }
+
+  /* Row 3: Title — large, tighter line height */
+  .landing-grid .title-main {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    font-size: clamp(40px, 12vw, 78px) !important;
+    line-height: 0.95 !important;
+    margin-top: 12px;
+  }
+
+  /* Row 4: Event info below title */
+  .landing-grid .info-row {
+    grid-column: 1 / -1 !important;
+    grid-row: 4 !important;
+    margin-top: 32px;
+  }
+  .landing-grid .event-info {
+    font-size: clamp(16px, 4vw, 24px) !important;
+    line-height: 1.3 !important;
+    margin-top: 0 !important;
+  }
+
+  /* On mobile, show full date with location, hide separate location block */
+  .landing-grid .title-location {
+    display: none !important;
+  }
+  .landing-grid .date-short {
+    display: none !important;
+  }
+  .landing-grid .date-full {
+    display: inline !important;
   }
 }

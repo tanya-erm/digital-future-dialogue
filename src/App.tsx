@@ -33,63 +33,63 @@ interface ColorTheme {
 
 const COLOR_THEMES: ColorTheme[] = [
   {
-    id: 'orchid',
-    swatch: '#ecb4f8',
-    bg: '#ffffff',
-    layers: [
-      { dotColor: '#ebb4f8', gridDotColor: '#bba84c' },
-      { dotColor: '#bba84c', gridDotColor: '#bba84c' },
-      { dotColor: '#f990eb', gridDotColor: '#dda4ec' },
-    ],
-  },
-  {
-    id: 'gold',
-    swatch: '#bba84c',
-    bg: '#ffffff',
-    layers: [
-      { dotColor: '#bba84c', gridDotColor: '#ebb4f8' },
-      { dotColor: '#d4c06a', gridDotColor: '#d4c06a' },
-      { dotColor: '#bba84c', gridDotColor: '#bba84c' },
-    ],
-  },
-  {
     id: 'cyan',
     swatch: '#acf7fc',
     bg: '#ACF7FC',
     layers: [
       { dotColor: '#77DFE7', gridDotColor: '#77DFE7' },
-      { dotColor: '#ACF7FC', gridDotColor: '#ACF7FC' },
       { dotColor: '#F1F8F3', gridDotColor: '#F1F8F3' },
+      { dotColor: '#FFFFFF', gridDotColor: '#FFFFFF' },
+    ],
+  },
+  {
+    id: 'pink-rose',
+    swatch: '#ecb4f8',
+    bg: '#ffffff',
+    layers: [
+      { dotColor: '#ECB4F8', gridDotColor: '#ECB4F8' },
+      { dotColor: '#FDA0CD', gridDotColor: '#FDA0CD' },
+      { dotColor: '#BBA84C', gridDotColor: '#BBA84C' },
     ],
   },
   {
     id: 'green',
     swatch: '#6edb9f',
-    bg: '#e8fbf0',
+    bg: '#6EDB9F',
     layers: [
-      { dotColor: '#6edb9f', gridDotColor: '#3dbd76' },
-      { dotColor: '#3dbd76', gridDotColor: '#3dbd76' },
-      { dotColor: '#a8ecc4', gridDotColor: '#a8ecc4' },
+      { dotColor: '#ACFCD0', gridDotColor: '#ACFCD0' },
+      { dotColor: '#80DB6E', gridDotColor: '#80DB6E' },
+      { dotColor: '#EEFF31', gridDotColor: '#EEFF31' },
     ],
   },
   {
     id: 'orange',
     swatch: '#ff9527',
-    bg: '#fff5e8',
+    bg: '#FF9527',
     layers: [
-      { dotColor: '#ff9527', gridDotColor: '#e07a10' },
-      { dotColor: '#e07a10', gridDotColor: '#e07a10' },
-      { dotColor: '#ffc07a', gridDotColor: '#ffc07a' },
+      { dotColor: '#FC5BA1', gridDotColor: '#FC5BA1' },
+      { dotColor: '#FFA78D', gridDotColor: '#FFA78D' },
+      { dotColor: '#7690FF', gridDotColor: '#7690FF' },
     ],
   },
   {
     id: 'blue',
     swatch: '#7690ff',
-    bg: '#eef1ff',
+    bg: '#7690FF',
     layers: [
-      { dotColor: '#7690ff', gridDotColor: '#5a73e0' },
-      { dotColor: '#5a73e0', gridDotColor: '#5a73e0' },
-      { dotColor: '#a8b8ff', gridDotColor: '#a8b8ff' },
+      { dotColor: '#5073FF', gridDotColor: '#5073FF' },
+      { dotColor: '#F8B58A', gridDotColor: '#F8B58A' },
+      { dotColor: '#FFAA67', gridDotColor: '#FFAA67' },
+    ],
+  },
+  {
+    id: 'beige',
+    swatch: '#b0aa6d',
+    bg: '#B0AA6D',
+    layers: [
+      { dotColor: '#96926A', gridDotColor: '#96926A' },
+      { dotColor: '#FF6199', gridDotColor: '#FF6199' },
+      { dotColor: '#E7E2B3', gridDotColor: '#E7E2B3' },
     ],
   },
 ];
@@ -149,15 +149,26 @@ export default function App() {
   }
 
   const [activeTheme, setActiveTheme] = useState(() => Math.floor(Math.random() * COLOR_THEMES.length));
-  const [hoveredSwatch, setHoveredSwatch] = useState<number | null>(null);
   const theme = COLOR_THEMES[activeTheme];
+  const nextTheme = () => setActiveTheme((activeTheme + 1) % COLOR_THEMES.length);
 
   const [time, setTime] = useState(0);
   const startTimeRef = useRef(performance.now());
 
-  const [mouse, setMouse] = useState<{ x: number; y: number } | null>(null);
-  const mouseRef = useRef<{ x: number; y: number } | null>(null);
+  // Synthetic cursor so the grid is alive before real mouse input.
+  const padding_ = SPACING / 2;
+  const synthX = padding_ + (TEXT_COL + 8) * SPACING;
+  const synthY = padding_ + (TEXT_ROW + 3) * SPACING;
+  const hasRealMouse = useRef(false);
+
+  const [mouse, setMouse] = useState<{ x: number; y: number } | null>({ x: synthX, y: synthY });
+  const mouseRef = useRef<{ x: number; y: number } | null>({ x: synthX, y: synthY });
   const svgRef = useRef<SVGSVGElement>(null);
+
+  // Smooth fade: 1 when cursor present, decays to 0 after leave.
+  const cursorActiveRef = useRef(true);
+  const cursorPresenceRef = useRef(1);
+  const [cursorPresence, setCursorPresence] = useState(1);
 
   const trailRefs = useRef<(({ x: number; y: number }) | null)[]>(BASE_LAYERS.map(() => null));
   const [trailPositions, setTrailPositions] = useState<(({ x: number; y: number }) | null)[]>(
@@ -177,6 +188,8 @@ export default function App() {
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
+      hasRealMouse.current = true;
+      cursorActiveRef.current = true;
       const pos = screenToSvg(e.clientX, e.clientY);
       if (pos) {
         const p = { x: pos.x, y: pos.y };
@@ -185,8 +198,7 @@ export default function App() {
       }
     };
     const onLeave = () => {
-      mouseRef.current = null;
-      setMouse(null);
+      cursorActiveRef.current = false;
     };
     window.addEventListener('mousemove', onMove);
     document.addEventListener('mouseleave', onLeave);
@@ -222,6 +234,14 @@ export default function App() {
       }
 
       if (changed) setTrailPositions(next);
+
+      // Smooth cursor presence fade.
+      const targetPresence = cursorActiveRef.current ? 1 : 0;
+      const p = cursorPresenceRef.current;
+      const newP = p + (targetPresence - p) * 0.03;
+      cursorPresenceRef.current = newP;
+      setCursorPresence(newP);
+
       setTime((performance.now() - startTimeRef.current) / 1000);
       raf = requestAnimationFrame(tick);
     };
@@ -252,6 +272,41 @@ export default function App() {
   }
   const BREATH_SCALE = 0.4;
 
+  // 10 curated reactive dot patterns, one picked randomly per load.
+  const reactiveDotsRef = useRef<Set<string>>(null!);
+  if (reactiveDotsRef.current === null) {
+    const patterns: ((c: number, r: number) => boolean)[] = [
+      // 0: Diagonal stripes (top-left to bottom-right)
+      (c, r) => (c + r) % 4 === 0,
+      // 1: Diagonal stripes (top-right to bottom-left)
+      (c, r) => (c - r + ROWS) % 4 === 0,
+      // 2: Vertical columns
+      (c) => c % 3 === 0,
+      // 3: Horizontal rows
+      (_c, r) => r % 3 === 0,
+      // 4: Checkerboard
+      (c, r) => (c + r) % 2 === 0 && (c + r) % 4 < 2,
+      // 5: Diamond / concentric rings from center
+      (c, r) => (Math.abs(c - COLS / 2) + Math.abs(r - ROWS / 2)) % 4 < 1,
+      // 6: Sparse scattered (seeded)
+      (c, r) => ((c * 17 + r * 31) % 11) < 2,
+      // 7: Cross pattern from center
+      (c, r) => Math.abs(c - Math.floor(COLS / 2)) < 2 || Math.abs(r - Math.floor(ROWS / 2)) < 2,
+      // 8: Corner clusters
+      (c, r) => (c < 4 && r < 4) || (c >= COLS - 4 && r < 4) || (c < 4 && r >= ROWS - 4) || (c >= COLS - 4 && r >= ROWS - 4),
+      // 9: Staggered dots
+      (c, r) => (r % 2 === 0 ? c % 4 === 0 : c % 4 === 2),
+    ];
+    const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+    const set = new Set<string>();
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (pattern(c, r)) set.add(`${c},${r}`);
+      }
+    }
+    reactiveDotsRef.current = set;
+  }
+
   // Build dot arrays per layer.
   const allLayerDots: React.ReactElement[][] = [];
 
@@ -259,8 +314,6 @@ export default function App() {
     const layer = BASE_LAYERS[li];
     const themeLayer = theme.layers[li];
     const dotColor = themeLayer?.dotColor ?? layer.dotColor;
-    const gridDotColor = themeLayer?.gridDotColor ?? layer.gridDotColor;
-
     const cursorPos = layer.delay === 0 ? mouse : (trailPositions[li] ?? null);
     const thinR = layer.thinDiameter / 2;
     const blackR = layer.blackDiameter / 2;
@@ -281,7 +334,7 @@ export default function App() {
           let g = 0;
           if (cursorPos) {
             g = fieldStrength(cx, cy, cursorPos.x, cursorPos.y, REACH_X, REACH_Y);
-            g = Math.pow(g, POWER);
+            g = Math.pow(g, POWER) * cursorPresence;
           }
           r = lerp(thinR, blackR, g);
           color = dotColor;
@@ -293,9 +346,16 @@ export default function App() {
           color = dotColor;
           opacity = wave;
         } else {
-          r = thinR;
-          color = gridDotColor;
-          opacity = layer.gridDotOpacity;
+          const reactive = reactiveDotsRef.current.has(`${col},${row}`);
+          if (reactive && cursorPos) {
+            let g = fieldStrength(cx, cy, cursorPos.x, cursorPos.y, REACH_X, REACH_Y);
+            g = Math.pow(g, POWER) * cursorPresence;
+            r = (blackR - thinR) * 0.2 * g;
+          } else {
+            r = 0;
+          }
+          color = dotColor;
+          opacity = 1;
         }
 
         dots.push(
@@ -352,24 +412,24 @@ export default function App() {
         position: 'absolute', inset: 0,
         display: 'grid',
         gridTemplateColumns: '1fr auto',
-        gridTemplateRows: 'auto 1fr auto 1fr auto',
+        gridTemplateRows: 'auto 1fr auto 2fr auto',
         padding: `clamp(8px, 1vw, 16px) ${pad} ${pad} ${pad}`,
         pointerEvents: 'none',
       }}>
-        {/* Row 1: Title top-left */}
-        <span className="title-main" style={{
+        {/* Row 1: Title top-left — click to cycle theme */}
+        <span className="title-main" onClick={nextTheme} style={{
           gridColumn: '1', gridRow: '1',
           fontFamily: font, fontWeight: 500,
           fontSize: 'clamp(40px, 5vw, 86px)',
           lineHeight: 1.1, letterSpacing: '-0.02em',
           color: '#000', alignSelf: 'start',
+          cursor: 'pointer', pointerEvents: 'auto',
           ...stagger(0),
         }}>Digital Future Dialogue</span>
 
-        {/* Row 1 right: Event info + theme switcher */}
+        {/* Row 1 right: Event info */}
         <div className="info-row" style={{
           gridColumn: '2', gridRow: '1',
-          display: 'flex', alignItems: 'flex-start', gap: 'clamp(16px, 2vw, 32px)',
           alignSelf: 'start',
         }}>
           <p className="event-info" style={{
@@ -383,50 +443,20 @@ export default function App() {
             An event for the global<br />
             digital rights community
           </p>
-
-          {/* Theme switcher */}
-          <div className="theme-switcher" style={{
-            display: 'flex', flexDirection: 'column', gap: 8,
-            padding: 8, pointerEvents: 'auto',
-            ...stagger(2),
-          }}>
-            {COLOR_THEMES.map((t, i) => {
-              const isActive = activeTheme === i;
-              const isHovered = hoveredSwatch === i;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setActiveTheme(i)}
-                  onMouseEnter={() => setHoveredSwatch(i)}
-                  onMouseLeave={() => setHoveredSwatch(null)}
-                  aria-label={`${t.id} theme`}
-                  style={{
-                    width: 'clamp(20px, 2vw, 32px)',
-                    height: 'clamp(20px, 2vw, 32px)',
-                    borderRadius: '50%',
-                    background: t.swatch,
-                    border: '1.5px solid #fff',
-                    outline: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    opacity: isActive ? 1 : isHovered ? 1 : 0.2,
-                    transition: 'opacity 0.3s ease',
-                  }}
-                />
-              );
-            })}
-          </div>
         </div>
 
         {/* Row 3: Date + Location, vertically centered */}
-        <span className="title-date" style={{
+        <div className="title-date" style={{
           gridColumn: '1', gridRow: '3',
           fontFamily: font, fontWeight: 500,
           fontSize: 'clamp(40px, 5vw, 86px)',
           lineHeight: 1.1, letterSpacing: '-0.02em',
           color: '#000', alignSelf: 'center',
           ...stagger(3),
-        }}>1–3 June</span>
+        }}>
+          <span className="date-short">1–3 June</span>
+          <span className="date-full" style={{ display: 'none' }}>1–3 June, 2026<br />Brussels</span>
+        </div>
 
         <div className="title-location" style={{
           gridColumn: '2', gridRow: '3',
