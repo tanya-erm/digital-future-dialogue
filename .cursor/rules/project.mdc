@@ -1,0 +1,10 @@
+---
+description: Project conventions for digital-future-dialogue
+globs: **/*
+---
+
+# Project Rules
+
+- Minimize dependencies. Prefer vanilla JS/CSS/HTML over adding libraries. Every dependency must justify its weight.
+- The build output (`dist/`) must be a self-contained static site that works on any web server with zero configuration.
+- Keep the project handoff-friendly: engineers receiving the built files should never need Node.js, npm, or any build tools.

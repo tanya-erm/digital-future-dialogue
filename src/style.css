@@ -17,16 +17,32 @@ html, body {
 @media (max-width: 768px) {
   .landing-grid {
     grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto 1fr auto !important;
+    grid-template-rows: auto auto auto auto 1fr auto !important;
+  }
+  .landing-grid .title-main {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  .landing-grid .info-row {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
   }
   .landing-grid .event-info {
-    grid-column: 1 !important;
     font-size: clamp(16px, 4vw, 22px) !important;
+    margin-top: 0 !important;
+  }
+  .landing-grid .title-date {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    margin-top: 24px;
   }
   .landing-grid .title-location {
     grid-column: 1 !important;
     grid-row: 4 !important;
-    margin-top: 24px;
+  }
+  .landing-grid .logo-wrap {
+    grid-column: 1 !important;
+    grid-row: 6 !important;
   }
   .landing-grid .theme-switcher {
     flex-direction: row !important;

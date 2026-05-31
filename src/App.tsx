@@ -148,7 +148,8 @@ export default function App() {
     cursor += gCols + LETTER_GAP;
   }
 
-  const [activeTheme, setActiveTheme] = useState(0);
+  const [activeTheme, setActiveTheme] = useState(() => Math.floor(Math.random() * COLOR_THEMES.length));
+  const [hoveredSwatch, setHoveredSwatch] = useState<number | null>(null);
   const theme = COLOR_THEMES[activeTheme];
 
   const [time, setTime] = useState(0);
@@ -351,7 +352,7 @@ export default function App() {
         position: 'absolute', inset: 0,
         display: 'grid',
         gridTemplateColumns: '1fr auto',
-        gridTemplateRows: 'auto 1fr auto',
+        gridTemplateRows: 'auto 1fr auto 1fr auto',
         padding: `clamp(8px, 1vw, 16px) ${pad} ${pad} ${pad}`,
         pointerEvents: 'none',
       }}>
@@ -366,7 +367,7 @@ export default function App() {
         }}>Digital Future Dialogue</span>
 
         {/* Row 1 right: Event info + theme switcher */}
-        <div style={{
+        <div className="info-row" style={{
           gridColumn: '2', gridRow: '1',
           display: 'flex', alignItems: 'flex-start', gap: 'clamp(16px, 2vw, 32px)',
           alignSelf: 'start',
@@ -389,63 +390,61 @@ export default function App() {
             padding: 8, pointerEvents: 'auto',
             ...stagger(2),
           }}>
-            {COLOR_THEMES.map((t, i) => (
-              <button
-                key={t.id}
-                onClick={() => setActiveTheme(i)}
-                aria-label={`${t.id} theme`}
-                style={{
-                  width: 'clamp(20px, 2vw, 32px)',
-                  height: 'clamp(20px, 2vw, 32px)',
-                  borderRadius: '50%',
-                  background: t.swatch,
-                  border: activeTheme === i ? '2px solid #000' : '2px solid transparent',
-                  cursor: 'pointer',
-                  padding: 0,
-                  transition: 'border-color 0.3s ease, transform 0.2s ease',
-                  transform: activeTheme === i ? 'scale(1.15)' : 'scale(1)',
-                }}
-              />
-            ))}
+            {COLOR_THEMES.map((t, i) => {
+              const isActive = activeTheme === i;
+              const isHovered = hoveredSwatch === i;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveTheme(i)}
+                  onMouseEnter={() => setHoveredSwatch(i)}
+                  onMouseLeave={() => setHoveredSwatch(null)}
+                  aria-label={`${t.id} theme`}
+                  style={{
+                    width: 'clamp(20px, 2vw, 32px)',
+                    height: 'clamp(20px, 2vw, 32px)',
+                    borderRadius: '50%',
+                    background: t.swatch,
+                    border: '1.5px solid #fff',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    opacity: isActive ? 1 : isHovered ? 1 : 0.2,
+                    transition: 'opacity 0.3s ease',
+                  }}
+                />
+              );
+            })}
           </div>
         </div>
 
-        {/* Row 2: spacer */}
-        <div style={{ gridColumn: '1 / -1', gridRow: '2' }} />
-
-        {/* Row 3 left: Date + Logo */}
-        <div style={{
+        {/* Row 3: Date + Location, vertically centered */}
+        <span className="title-date" style={{
           gridColumn: '1', gridRow: '3',
-          alignSelf: 'end',
-          display: 'flex', flexDirection: 'column',
-          gap: 'clamp(16px, 2vw, 40px)',
-        }}>
-          <span className="title-date" style={{
-            fontFamily: font, fontWeight: 500,
-            fontSize: 'clamp(40px, 5vw, 86px)',
-            lineHeight: 1.1, letterSpacing: '-0.02em',
-            color: '#000',
-            ...stagger(3),
-          }}>1–3 June</span>
+          fontFamily: font, fontWeight: 500,
+          fontSize: 'clamp(40px, 5vw, 86px)',
+          lineHeight: 1.1, letterSpacing: '-0.02em',
+          color: '#000', alignSelf: 'center',
+          ...stagger(3),
+        }}>1–3 June</span>
 
-          <div className="logo-wrap" style={{ ...stagger(5) }}>
-            <img src={dfdLogo} alt="Digital Future Dialogue" style={{
-              width: 'clamp(120px, 16vw, 280px)', height: 'auto',
-            }} />
-          </div>
-        </div>
-
-        {/* Row 3 right: Brussels 2026 */}
         <div className="title-location" style={{
           gridColumn: '2', gridRow: '3',
           fontFamily: font, fontWeight: 500,
           fontSize: 'clamp(40px, 5vw, 86px)',
           lineHeight: 1.1, letterSpacing: '-0.02em',
-          color: '#000', alignSelf: 'end',
+          color: '#000', alignSelf: 'center',
           ...stagger(4),
         }}>
           Brussels<br />
           2026
+        </div>
+
+        {/* Row 5: Logo bottom-left */}
+        <div className="logo-wrap" style={{ gridColumn: '1', gridRow: '5', alignSelf: 'end', ...stagger(5) }}>
+          <img src={dfdLogo} alt="Digital Future Dialogue" style={{
+            width: 'clamp(120px, 16vw, 280px)', height: 'auto',
+          }} />
         </div>
       </div>
     </div>
