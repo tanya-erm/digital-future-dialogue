@@ -6,6 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:landing": "tsc -b && vite build --config vite.config.landing.ts",
+    "build:day1": "tsc -b && vite build --config vite.config.day1.ts",
+    "build:all": "npm run build:landing && npm run build:day1",
+    "zip:landing": "npm run build:landing && cd dist-landing && zip -r ../dfd-landing.zip . && cd ..",
+    "zip:day1": "npm run build:day1 && rm -rf dist-day1-flat && mkdir dist-day1-flat && cp -r dist-day1/assets dist-day1-flat/ && sed 's|\\.\\./assets|./assets|g' dist-day1/day1/index.html > dist-day1-flat/index.html && cd dist-day1-flat && zip -r ../dfd-day1.zip . && cd ..",
+    "zip:all": "npm run zip:landing && npm run zip:day1",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -14,6 +20,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.2",
+    "@types/node": "^25.9.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",

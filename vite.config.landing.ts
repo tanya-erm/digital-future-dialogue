@@ -8,12 +8,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  base: './',
   build: {
+    outDir: 'dist-landing',
     rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html'),
-        'day1/index': resolve(__dirname, 'day1/index.html'),
-      },
+      input: resolve(__dirname, 'index.html'),
     },
   },
 });

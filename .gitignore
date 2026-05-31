@@ -1,5 +1,9 @@
 node_modules
 dist
+dist-landing
+dist-day1
+dist-day1-flat
+*.zip
 .DS_Store
 *.local
 .vercel

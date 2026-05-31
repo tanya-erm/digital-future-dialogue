@@ -11,6 +11,9 @@
 html, body {
   margin: 0;
   padding: 0;
+}
+
+body.page-home {
   overflow: hidden;
 }
 
@@ -69,5 +72,517 @@ html, body {
   }
   .landing-grid .date-full {
     display: inline !important;
+  }
+
+  .session-details {
+    margin-left: 0 !important;
+    margin-top: 12px !important;
+  }
+}
+
+/* ── Day 1 Programme page ── */
+
+.day1-page {
+  min-height: 100vh;
+  background: #fff;
+  color: #000;
+  font-family: 'Suisse Intl', sans-serif;
+}
+
+/* Header */
+.program-header {
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.program-header-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.program-title-link {
+  text-decoration: none;
+  color: #000;
+  display: flex;
+  align-items: flex-end;
+}
+.program-title {
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.program-logo-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.program-logo {
+  height: 28px;
+  width: auto;
+}
+
+/* Sticky nav */
+.part-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.part-nav-inner {
+  display: flex;
+  height: 44px;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+  gap: 24px;
+}
+.part-pill {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: 'Suisse Intl', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: rgba(0,0,0,0.4);
+  background: transparent;
+  transition: color 0.2s ease;
+}
+
+/* Part banners */
+.part-banner {
+  background: #EEA8FF;
+  padding: 16px 16px;
+  display: flex;
+  align-items: flex-start;
+  scroll-margin-top: 44px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+.part-banner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.part-banner-label {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #000;
+  text-align: left;
+}
+.part-banner-title {
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #000;
+  margin: 0;
+  text-align: left;
+}
+
+/* Programme main */
+.program-main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 24px;
+}
+
+/* Agenda heading */
+.agenda-heading {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #000;
+  margin: 0 0 16px;
+  padding: 0 16px;
+}
+
+/* Organizer label */
+.session-organizer {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: rgba(0,0,0,0.45);
+  margin: 0;
+}
+
+/* Section headings (same size as part banners, no pink) */
+.section-heading {
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #000;
+  margin: 0;
+  padding: 12px 16px;
+  max-width: 900px;
+  box-sizing: border-box;
+}
+
+/* Part sections */
+.part-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Sessions */
+.session-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.session-divider {
+  height: 0;
+  width: 100%;
+  border-top: 1px solid rgba(0,0,0,0.12);
+}
+.session-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 12px 6px 16px;
+}
+.session-content.has-details {
+  gap: 12px;
+}
+.session-header {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Accordion */
+.session-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 6px 12px 6px 16px;
+  transition: background 0.15s ease;
+}
+.session-accordion:hover {
+  background: rgba(0,0,0,0.03);
+}
+.session-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  position: relative;
+}
+.session-summary::-webkit-details-marker,
+.session-summary::marker {
+  display: none;
+  content: '';
+}
+.session-summary > .session-header {
+  flex: 1;
+}
+.accordion-chevron {
+  position: absolute;
+  right: -4px;
+  top: 4px;
+  left: auto;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+}
+.accordion-chevron::before {
+  content: '';
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-right: 2.5px solid #000;
+  border-bottom: 2.5px solid #000;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.session-accordion[open] .accordion-chevron::before {
+  transform: rotate(-135deg);
+}
+
+.session-time {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: rgba(0,0,0,0.45);
+  margin: 0;
+}
+.session-title {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #000;
+  margin: 0;
+}
+
+/* Speaker details */
+.session-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.person-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.person-label {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: rgba(0,0,0,0.45);
+  margin: 0;
+}
+.person-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.person-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.person-name {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #000;
+  margin: 0;
+}
+.person-title {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: rgba(0,0,0,0.4);
+  margin: 0;
+}
+.session-note {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: rgba(0,0,0,0.5);
+  margin: 0;
+  text-align: justify;
+}
+/* Group grid (roundtable cards) */
+.group-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.group-card {
+  border: 1px solid rgba(0,0,0,0.15);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.group-card-term {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #000;
+}
+.group-card-desc {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.3;
+  text-align: left;
+  letter-spacing: 0.01em;
+  color: rgba(0,0,0,0.4);
+}
+
+/* Footer with interactive grid */
+.program-footer {
+  margin-top: -120px;
+  position: relative;
+  z-index: 1;
+}
+.program-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, #fff, rgba(255,255,255,0));
+  z-index: 2;
+  pointer-events: none;
+}
+.dfd-grid-footer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 22 / 15;
+  overflow: hidden;
+}
+
+/* ── Desktop (>768px) ── */
+
+@media (min-width: 769px) {
+  .program-header-inner {
+    height: 64px;
+    padding: 0 64px;
+  }
+  .program-title {
+    font-size: clamp(29px, 4vw, 45px);
+  }
+  .program-logo {
+    height: clamp(29px, 3.2vw, 42px);
+  }
+
+  .part-nav-inner {
+    height: 68px;
+    padding: 0 64px;
+    gap: 45px;
+  }
+  .part-pill {
+    font-size: clamp(19px, 2.4vw, 32px);
+  }
+
+  .section-heading {
+    font-size: 26px;
+    padding: 6px 38px 6px 64px;
+  }
+
+  .part-banner {
+    padding: 20px 64px;
+    scroll-margin-top: 68px;
+  }
+  .part-banner-content {
+    gap: 6px;
+  }
+  .part-banner-label {
+    font-size: 16px;
+  }
+  .part-banner-title {
+    font-size: 36px;
+  }
+
+  .part-section {
+    gap: 30px;
+  }
+
+  .agenda-heading {
+    font-size: 13px;
+    padding: 0 64px;
+    margin-bottom: 19px;
+  }
+  .session-organizer {
+    font-size: 13px;
+  }
+  .session-content {
+    padding: 6px 38px 6px 64px;
+  }
+  .session-content.has-details {
+    gap: 19px;
+  }
+  .session-accordion {
+    padding: 6px 38px 6px 64px;
+    gap: 19px;
+  }
+  .accordion-chevron {
+    left: -64px;
+    right: auto;
+    top: 6px;
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .session-accordion:hover .accordion-chevron {
+    opacity: 1;
+  }
+  .session-header {
+    gap: 6px;
+  }
+  .session-time {
+    font-size: 26px;
+  }
+  .session-title {
+    font-size: 26px;
+  }
+
+  .session-details-list {
+    gap: 13px;
+  }
+  .person-row {
+    flex-direction: row;
+    gap: 45px;
+    align-items: flex-start;
+  }
+  .person-label {
+    width: 131px;
+    flex-shrink: 0;
+    font-size: 19px;
+  }
+  .person-list {
+    flex: 1;
+    gap: 6px;
+  }
+  .person-entry {
+    gap: 2px;
+  }
+  .person-name {
+    font-size: 19px;
+  }
+  .person-title {
+    font-size: 19px;
+  }
+  .session-note {
+    font-size: 19px;
+    line-height: 1.3;
+  }
+
+  .group-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+  }
+  .group-card {
+    padding: 13px 32px;
+    gap: 6px;
+    border-color: #000;
+  }
+  .group-card-term {
+    font-size: 19px;
+  }
+  .group-card-desc {
+    font-size: 19px;
+    line-height: 1.3;
+  }
+  .program-footer {
+    margin-top: -200px;
+  }
+  .program-footer::before {
+    height: 200px;
   }
 }

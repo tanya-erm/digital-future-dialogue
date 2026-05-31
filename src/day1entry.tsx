@@ -1,12 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
+import Day1 from './Day1Page';
 import './style.css';
-
-document.body.classList.add('page-home');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <Day1 />
   </StrictMode>,
 );
